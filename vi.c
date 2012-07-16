@@ -6,9 +6,9 @@
 #include <gdk/gdkkeysyms.h>
 
 enum { Insert, Normal };
-enum { Move, Delete, Paste };
+enum { Move, Delete, Paste, Copy, Cut };
 enum { No, Yes, More };
-enum { Char, Word, Line, Paragraph };
+enum { Char, Word, Line, ParaEnd, Para };
 
 static int mode = Insert;
 
@@ -17,6 +17,7 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 	static int m = 1; /* command multiplier */
 	static int mod = Move;
 	static int obj;
+	static int visual = 0;
 	static int handled = Yes;
 	static int count = 0;
 	int k;
@@ -24,18 +25,22 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 	{
 		"move-cursor",
 		"delete-from-cursor",
-		"paste-clipboard"
+		"paste-clipboard",
+		"copy-clipboard",
+		"cut-clipboard",
 	};
-	static const int objs[][4] =
+	static const int objs[][5] =
 	{
 		{ GTK_MOVEMENT_LOGICAL_POSITIONS,
 		  GTK_MOVEMENT_WORDS,
 		  GTK_MOVEMENT_DISPLAY_LINES,
-		  GTK_MOVEMENT_PARAGRAPH_ENDS },
+		  GTK_MOVEMENT_PARAGRAPH_ENDS,
+		  GTK_MOVEMENT_PARAGRAPHS },
 		{ GTK_DELETE_CHARS,
 		  GTK_DELETE_WORD_ENDS,
 		  GTK_DELETE_DISPLAY_LINE_ENDS,
-		  GTK_DELETE_PARAGRAPH_ENDS },
+		  GTK_DELETE_PARAGRAPH_ENDS,
+		  GTK_DELETE_PARAGRAPHS },
 	};
 
 	if (event->type != GDK_KEY_PRESS)
@@ -65,10 +70,26 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 	}
 
 	switch (event->keyval) {
+		case GDK_v:
+			visual = 1;
+			break;
+		case GDK_y:
+			if (mod != Copy) {
+				mod = Copy;
+				handled = More;
+				return TRUE;
+			}
+			visual = 0;
+			/* XXX: yy */
+			break;
 		case GDK_d:
-			mod = Delete;
-			handled = More;
-			return TRUE;
+			if (mod == Move) {
+				mod = Delete;
+				handled = More;
+				return TRUE;
+			}
+			visual = 0;
+			/* XXX: dd */
 			break;
 		case GDK_b:
 			obj = objs[mod][Word];
@@ -82,6 +103,11 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			m = -abs(m);
 			break;
 		case GDK_x:
+			if (visual) {
+				mod = Cut;
+				visual = 0;
+				break;
+			}
 			mod = Delete;
 			/* FALLTHROUGH */
 		case GDK_l:
@@ -104,11 +130,11 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			m = -abs(m);
 			break;
 		case GDK_asciicircum:
-			obj = objs[mod][Paragraph];
+			obj = objs[mod][ParaEnd];
 			m = -1;
 			break;
 		case GDK_dollar:
-			obj = objs[mod][Paragraph];
+			obj = objs[mod][ParaEnd];
 			m = 1;
 			break;
 		case GDK_p:
@@ -120,9 +146,15 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			return TRUE;
 		}
 	if (handled == Yes) {
-		if (mod == Move || mod == Delete)
+		if (mod == Move || mod == Delete) {
+			printf("mod = %d obj = %d m = %d visual =%d\n",
+					mod, obj, m, visual);
 			g_signal_emit_by_name(G_OBJECT(widget), commands[mod],
-					obj, m, 0);
+					obj, m, visual);
+		}
+		if (mod == Cut || mod == Copy)
+			g_signal_emit_by_name(G_OBJECT(widget),
+					commands[mod]);
 		if (mod == Paste) {
 			for(k = 0; k < m; k++) {
 				g_signal_emit_by_name(G_OBJECT(widget),

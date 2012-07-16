@@ -77,6 +77,9 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			obj = objs[mod][Char];
 			m = -abs(m);
 			break;
+		case GDK_x:
+			mod = Delete;
+			/* FALLTHROUGH */
 		case GDK_l:
 			obj = objs[mod][Char];
 			break;

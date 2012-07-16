@@ -74,12 +74,16 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			visual = 1;
 			break;
 		case GDK_y:
+			if (visual) {
+				mod = Copy;
+				visual = 0;
+				break;
+			}
 			if (mod != Copy) {
 				mod = Copy;
 				handled = More;
 				return TRUE;
 			}
-			visual = 0;
 			/* XXX: yy */
 			break;
 		case GDK_d:

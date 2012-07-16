@@ -145,25 +145,29 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			handled = No;
 			return TRUE;
 		}
-	if (handled == Yes) {
-		if (mod == Move || mod == Delete) {
-			printf("mod = %d obj = %d m = %d visual =%d\n",
-					mod, obj, m, visual);
+	if (handled != Yes)
+		return TRUE;
+	switch (mod) {
+		case Move:
+		case Delete:
 			g_signal_emit_by_name(G_OBJECT(widget), commands[mod],
-					obj, m, visual);
-		}
-		if (mod == Cut || mod == Copy)
-			g_signal_emit_by_name(G_OBJECT(widget),
-					commands[mod]);
-		if (mod == Paste) {
+				obj, m, visual);
+			break;
+		case Cut:
+		case Copy:
+			g_signal_emit_by_name(G_OBJECT(widget), commands[mod]);
+			break;
+		case Paste:
 			for(k = 0; k < m; k++) {
 				g_signal_emit_by_name(G_OBJECT(widget),
 						commands[mod]);
 			}
-		}
-		m = 1;
-		mod = Move;
+			break;
+		default:
+			fprintf(stderr, "gtkvi: mode unknown");
 	}
+	m = 1;
+	mod = Move;
 	return TRUE;
 }
 

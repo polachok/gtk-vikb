@@ -1,0 +1,15 @@
+gtk-vikb
+--------
+This is an attempt to add vi keybindings to gtk text areas,
+GtkTextView and GtkEntry.
+
+The project was started 16 Jul 2012, so don't expect a lot
+to work.
+
+Building
+--------
+gcc -shared -fPIC `pkg-config gtk+-x11-2.0 --cflags --libs` -o libvi.so vi.c
+
+Usage
+-----
+GTK_MODULES=<path-to-libvi.so> [your-application]

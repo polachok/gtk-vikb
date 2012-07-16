@@ -12,7 +12,7 @@ enum { Char, Word, Line, Paragraph };
 
 static int mode = Insert;
 
-gint
+static gint
 vi_mode(GtkWidget *widget, GdkEventKey *event) {
 	static int m = 1; /* command multiplier */
 	static int mod = Move;
@@ -105,6 +105,7 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			m = 1;
 			break;
 		default:
+			gtk_widget_error_bell(widget);
 			handled = No;
 			return TRUE;
 		}
@@ -122,27 +123,30 @@ static void
 set_block_cursor(GtkTextView *widget, int set) {
 	if (set) {
 		gtk_text_view_set_overwrite(widget, set);
-		((GtkTextView*)widget)->overwrite_mode = FALSE;
+		widget->overwrite_mode = FALSE;
 	} else {
-		((GtkTextView*)widget)->overwrite_mode = TRUE;
+		widget->overwrite_mode = TRUE;
 		gtk_text_view_set_overwrite(widget, set);
 	}
 }
 
 gint
 snooper(GtkWidget *widget, GdkEventKey *event, gpointer data) {
-	widget = gtk_window_get_focus(widget);
+	if (!GTK_IS_WINDOW(widget))
+		return FALSE;
+	widget = gtk_window_get_focus((GtkWindow*)widget);
+
 	if (!GTK_IS_TEXT_VIEW(widget) && !GTK_IS_ENTRY(widget))
 		return FALSE;
 	if (mode == Normal && vi_mode(widget, event))
 		return TRUE;
 	if (GTK_IS_TEXT_VIEW(widget))
-		set_block_cursor(widget, 0);
+		set_block_cursor((GtkTextView*)widget, 0);
 	if (mode == Insert && event->keyval == GDK_Escape) {
 		if (event->type == GDK_KEY_PRESS) {
 			mode = Normal;
 			if (GTK_IS_TEXT_VIEW(widget)) {
-				set_block_cursor(widget, 1);
+				set_block_cursor((GtkTextView*)widget, 1);
 			}
 		}
 		return TRUE;

@@ -116,7 +116,6 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 		case GDK_i:
 			mode = Insert;
 			return TRUE;
-			break;
 		case GDK_a:
 			mode = Insert;
 			mod = Move;

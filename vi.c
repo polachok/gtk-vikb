@@ -8,7 +8,7 @@
 enum { Insert, Normal };
 enum { Move, Delete };
 enum { No, Yes, More };
-enum { Char, Word, Line };
+enum { Char, Word, Line, Paragraph };
 
 static int mode = Insert;
 
@@ -22,12 +22,8 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 	int k;
 	static const char *commands[] = { "move-cursor",
 	       			          "delete-from-cursor" };
-	static const struct {
-		int character;
-		int word;
-		int line;
-		int paragraph;
-	} objs[] = { 
+	static const int objs[][4] =
+	{
 		{ GTK_MOVEMENT_LOGICAL_POSITIONS,
 		  GTK_MOVEMENT_WORDS,
 		  GTK_MOVEMENT_DISPLAY_LINES,
@@ -71,18 +67,18 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			return TRUE;
 			break;
 		case GDK_b:
-			obj = objs[mod].word;
+			obj = objs[mod][Word];
 			m = -abs(m);
 			break;
 		case GDK_w:
-			obj = objs[mod].word;
+			obj = objs[mod][Word];
 			break;
 		case GDK_h:
-			obj = objs[mod].character;
+			obj = objs[mod][Char];
 			m = -abs(m);
 			break;
 		case GDK_l:
-			obj = objs[mod].character;
+			obj = objs[mod][Char];
 			break;
 		case GDK_i:
 			mode = Insert;
@@ -90,22 +86,22 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 		case GDK_a:
 			mode = Insert;
 			mod = Move;
-			obj = objs[mod].character;
+			obj = objs[mod][Char];
 			m = 1;
 			break;	
 		case GDK_j:
-			obj = objs[mod].line;
+			obj = objs[mod][Line];
 			break;
 		case GDK_k:
-			obj = objs[mod].line;
+			obj = objs[mod][Line];
 			m = -abs(m);
 			break;
 		case GDK_asciicircum:
-			obj = objs[mod].paragraph;
+			obj = objs[mod][Paragraph];
 			m = -1;
 			break;
 		case GDK_dollar:
-			obj = objs[mod].paragraph;
+			obj = objs[mod][Paragraph];
 			m = 1;
 			break;
 		default:

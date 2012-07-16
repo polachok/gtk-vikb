@@ -86,6 +86,12 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			break;
 		case GDK_i:
 			mode = Insert;
+			break;
+		case GDK_a:
+			mode = Insert;
+			mod = Move;
+			obj = objs[mod].character;
+			m = 1;
 			break;	
 		case GDK_j:
 			obj = objs[mod].line;
@@ -115,6 +121,18 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 	return TRUE;
 }
 
+/* hack */
+static void
+set_block_cursor(GtkTextView *widget, int set) {
+	if (set) {
+		gtk_text_view_set_overwrite(widget, set);
+		((GtkTextView*)widget)->overwrite_mode = FALSE;
+	} else {
+		((GtkTextView*)widget)->overwrite_mode = TRUE;
+		gtk_text_view_set_overwrite(widget, set);
+	}
+}
+
 gint
 snooper(GtkWidget *widget, GdkEventKey *event, gpointer data) {
 	widget = gtk_window_get_focus(widget);
@@ -122,9 +140,15 @@ snooper(GtkWidget *widget, GdkEventKey *event, gpointer data) {
 		return FALSE;
 	if (mode == Normal && vi_mode(widget, event))
 		return TRUE;
+	if (GTK_IS_TEXT_VIEW(widget))
+		set_block_cursor(widget, 0);
 	if (mode == Insert && event->keyval == GDK_Escape) {
-		if (event->type == GDK_KEY_PRESS)
+		if (event->type == GDK_KEY_PRESS) {
 			mode = Normal;
+			if (GTK_IS_TEXT_VIEW(widget)) {
+				set_block_cursor(widget, 1);
+			}
+		}
 		return TRUE;
 	}
 	return FALSE;

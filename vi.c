@@ -6,7 +6,7 @@
 #include <gdk/gdkkeysyms.h>
 
 enum { Insert, Normal };
-enum { Move, Delete };
+enum { Move, Delete, Paste };
 enum { No, Yes, More };
 enum { Char, Word, Line, Paragraph };
 
@@ -20,8 +20,12 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 	static int handled = Yes;
 	static int count = 0;
 	int k;
-	static const char *commands[] = { "move-cursor",
-	       			          "delete-from-cursor" };
+	static const char *commands[] =
+	{
+		"move-cursor",
+		"delete-from-cursor",
+		"paste-clipboard"
+	};
 	static const int objs[][4] =
 	{
 		{ GTK_MOVEMENT_LOGICAL_POSITIONS,
@@ -107,14 +111,24 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			obj = objs[mod][Paragraph];
 			m = 1;
 			break;
+		case GDK_p:
+			mod = Paste;
+			break;
 		default:
 			gtk_widget_error_bell(widget);
 			handled = No;
 			return TRUE;
 		}
 	if (handled == Yes) {
-		g_signal_emit_by_name(G_OBJECT(widget), commands[mod],
-				obj, m, 0);
+		if (mod == Move || mod == Delete)
+			g_signal_emit_by_name(G_OBJECT(widget), commands[mod],
+					obj, m, 0);
+		if (mod == Paste) {
+			for(k = 0; k < m; k++) {
+				g_signal_emit_by_name(G_OBJECT(widget),
+						commands[mod]);
+			}
+		}
 		m = 1;
 		mod = Move;
 	}

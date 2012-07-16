@@ -10,6 +10,18 @@ Building
 --------
 gcc -shared -fPIC `pkg-config gtk+-x11-2.0 --cflags --libs` -o libvi.so vi.c
 
-Usage
------
+To try it out
+-------------
 GTK_MODULES=<path-to-libvi.so> [your-application]
+
+For permanent use
+-----------------
+1) install module somewhere
+
+	mkdir -p .gtk-2.0/modules
+	cp libvi.so ~/.gtk-2.0/modules/
+
+2) add this to startup script (~/.xinitrc or whatever)
+
+	export GTK_PATH=$HOME/.gtk-2.0/modules
+	export GTK_MODULES=vi

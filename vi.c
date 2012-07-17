@@ -57,6 +57,11 @@ paste(GtkWidget *widget) {
 	g_signal_emit_by_name(G_OBJECT(widget), "paste-clipboard");
 }
 
+static void
+insert(GtkWidget *widget, gchar *string) {
+	g_signal_emit_by_name(G_OBJECT(widget), "insert-at-cursor", string);
+}
+
 static gint
 vi_mode(GtkWidget *widget, GdkEventKey *event) {
 	static int m = 1; /* command multiplier */
@@ -169,6 +174,17 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			obj = ParaEnd;
 			m = 1;
 			break;
+		case GDK_o:
+			move(widget, ParaEnd, 1, 0);
+			insert(widget, "\n");
+			mode = Insert;
+			return TRUE;
+		case GDK_O:
+			move(widget, ParaEnd, -1, 0);
+			insert(widget, "\n");
+			move(widget, Line, -1, 0);
+			mode = Insert;
+			return TRUE;
 		case GDK_P:
 			mod = Paste;
 			break;

@@ -126,7 +126,7 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 		case GDK_a:
 			mode = Insert;
 			mod = Move;
-			obj = objs[mod][Char];
+			obj = GTK_MOVEMENT_VISUAL_POSITIONS;
 			m = 1;
 			break;	
 		case GDK_j:
@@ -145,8 +145,16 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			obj = objs[mod][ParaEnd];
 			m = 1;
 			break;
-		case GDK_p:
+		case GDK_P:
 			mod = Paste;
+			break;
+		case GDK_p:
+			g_signal_emit_by_name(G_OBJECT(widget), commands[Move],
+				GTK_MOVEMENT_VISUAL_POSITIONS, 1, 0);
+			mod = Paste;
+			break;
+		case GDK_Escape:
+			visual = 0;
 			break;
 		default:
 			gtk_widget_error_bell(widget);
@@ -173,6 +181,11 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			break;
 		default:
 			fprintf(stderr, "gtkvi: mode unknown");
+	}
+	/* remove selection */
+	if (!visual) {
+		g_signal_emit_by_name(G_OBJECT(widget), commands[Move],
+				GTK_MOVEMENT_LOGICAL_POSITIONS, 0, 0);
 	}
 	m = 1;
 	mod = Move;

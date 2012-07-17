@@ -48,6 +48,9 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 	handled = Yes;
 	switch (event->keyval) {
 		case GDK_0:
+			if (!count)
+				break;
+			/* FALLTHROUGH */
 		case GDK_1:
 		case GDK_2:
 		case GDK_3:
@@ -133,6 +136,7 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			obj = objs[mod][Line];
 			m = -abs(m);
 			break;
+		case GDK_0:
 		case GDK_asciicircum:
 			obj = objs[mod][ParaEnd];
 			m = -1;

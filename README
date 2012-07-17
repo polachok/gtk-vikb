@@ -8,7 +8,11 @@ to work.
 
 Building
 --------
-gcc -shared -fPIC `pkg-config gtk+-x11-2.0 --cflags --libs` -o libvi.so vi.c
+    $ gcc -shared -fPIC `pkg-config gtk+-x11-2.0 --cflags --libs` -o libvi.so vi.c
+
+or
+
+    $ make
 
 To try it out
 -------------

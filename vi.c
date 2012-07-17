@@ -74,7 +74,7 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 
 	switch (event->keyval) {
 		case GDK_v:
-			visual = 1;
+			visual = !visual;
 			break;
 		case GDK_y:
 			if (visual) {

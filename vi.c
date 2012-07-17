@@ -170,6 +170,9 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			obj = ParaEnd;
 			m = -1;
 			break;
+		case GDK_A:
+			mode = Insert;
+			/* FALLTHROUGH */
 		case GDK_dollar:
 			obj = ParaEnd;
 			m = 1;

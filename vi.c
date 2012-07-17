@@ -12,6 +12,51 @@ enum { Char, Word, Line, ParaEnd, Para };
 
 static int mode = Insert;
 
+static void
+move(GtkWidget *widget, int noun, int multiplier, int visual) {
+	static const int n2gtk[] =
+	{
+		GTK_MOVEMENT_LOGICAL_POSITIONS,
+		GTK_MOVEMENT_WORDS,
+		GTK_MOVEMENT_DISPLAY_LINES,
+		GTK_MOVEMENT_PARAGRAPH_ENDS,
+		GTK_MOVEMENT_PARAGRAPHS
+	};
+
+	g_signal_emit_by_name(G_OBJECT(widget), "move-cursor",
+			n2gtk[noun], multiplier, visual);
+}
+
+static void
+delete(GtkWidget *widget, int noun, int multiplier) {
+	static const int n2gtk[] =
+	{
+		GTK_DELETE_CHARS,
+		GTK_DELETE_WORD_ENDS,
+		GTK_DELETE_DISPLAY_LINE_ENDS,
+		GTK_DELETE_PARAGRAPH_ENDS,
+		GTK_DELETE_PARAGRAPHS
+	};
+
+	g_signal_emit_by_name(G_OBJECT(widget), "delete-from-cursor",
+			n2gtk[noun], multiplier);
+}
+
+static void
+copy(GtkWidget *widget) {
+	g_signal_emit_by_name(G_OBJECT(widget), "copy-clipboard");
+}
+
+static void
+cut(GtkWidget *widget) {
+	g_signal_emit_by_name(G_OBJECT(widget), "cut-clipboard");
+}
+
+static void
+paste(GtkWidget *widget) {
+	g_signal_emit_by_name(G_OBJECT(widget), "paste-clipboard");
+}
+
 static gint
 vi_mode(GtkWidget *widget, GdkEventKey *event) {
 	static int m = 1; /* command multiplier */
@@ -21,27 +66,6 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 	static int handled = Yes;
 	static int count = 0;
 	int k;
-	static const char *commands[] =
-	{
-		"move-cursor",
-		"delete-from-cursor",
-		"paste-clipboard",
-		"copy-clipboard",
-		"cut-clipboard",
-	};
-	static const int objs[][5] =
-	{
-		{ GTK_MOVEMENT_LOGICAL_POSITIONS,
-		  GTK_MOVEMENT_WORDS,
-		  GTK_MOVEMENT_DISPLAY_LINES,
-		  GTK_MOVEMENT_PARAGRAPH_ENDS,
-		  GTK_MOVEMENT_PARAGRAPHS },
-		{ GTK_DELETE_CHARS,
-		  GTK_DELETE_WORD_ENDS,
-		  GTK_DELETE_DISPLAY_LINE_ENDS,
-		  GTK_DELETE_PARAGRAPH_ENDS,
-		  GTK_DELETE_PARAGRAPHS },
-	};
 
 	if (event->type != GDK_KEY_PRESS)
 		return TRUE;
@@ -99,14 +123,14 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			/* XXX: dd */
 			break;
 		case GDK_b:
-			obj = objs[mod][Word];
+			obj = Word;
 			m = -abs(m);
 			break;
 		case GDK_w:
-			obj = objs[mod][Word];
+			obj = Word;
 			break;
 		case GDK_h:
-			obj = objs[mod][Char];
+			obj = Char;
 			m = -abs(m);
 			break;
 		case GDK_x:
@@ -118,7 +142,7 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			mod = Delete;
 			/* FALLTHROUGH */
 		case GDK_l:
-			obj = objs[mod][Char];
+			obj = Char;
 			break;
 		case GDK_i:
 			mode = Insert;
@@ -126,31 +150,30 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 		case GDK_a:
 			mode = Insert;
 			mod = Move;
-			obj = GTK_MOVEMENT_VISUAL_POSITIONS;
+			obj = Char;
 			m = 1;
 			break;	
 		case GDK_j:
-			obj = objs[mod][Line];
+			obj = Line;
 			break;
 		case GDK_k:
-			obj = objs[mod][Line];
+			obj = Line;
 			m = -abs(m);
 			break;
 		case GDK_0:
 		case GDK_asciicircum:
-			obj = objs[mod][ParaEnd];
+			obj = ParaEnd;
 			m = -1;
 			break;
 		case GDK_dollar:
-			obj = objs[mod][ParaEnd];
+			obj = ParaEnd;
 			m = 1;
 			break;
 		case GDK_P:
 			mod = Paste;
 			break;
 		case GDK_p:
-			g_signal_emit_by_name(G_OBJECT(widget), commands[Move],
-				GTK_MOVEMENT_VISUAL_POSITIONS, 1, 0);
+			move(widget, Char, 1, 0);
 			mod = Paste;
 			break;
 		case GDK_Escape:
@@ -165,28 +188,27 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 		return TRUE;
 	switch (mod) {
 		case Move:
+			move(widget, obj, m, visual);
+			break;
 		case Delete:
-			g_signal_emit_by_name(G_OBJECT(widget), commands[mod],
-				obj, m, visual);
+			delete(widget, obj, m);
 			break;
 		case Cut:
+			cut(widget);
+			break;
 		case Copy:
-			g_signal_emit_by_name(G_OBJECT(widget), commands[mod]);
+			copy(widget);
 			break;
 		case Paste:
-			for(k = 0; k < m; k++) {
-				g_signal_emit_by_name(G_OBJECT(widget),
-						commands[mod]);
-			}
+			for(k = 0; k < m; k++)
+				paste(widget);
 			break;
 		default:
 			fprintf(stderr, "gtkvi: mode unknown");
 	}
 	/* remove selection */
-	if (!visual) {
-		g_signal_emit_by_name(G_OBJECT(widget), commands[Move],
-				GTK_MOVEMENT_LOGICAL_POSITIONS, 0, 0);
-	}
+	if (!visual)
+		move(widget, Char, 0, 0);
 	m = 1;
 	mod = Move;
 	return TRUE;

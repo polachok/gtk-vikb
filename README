@@ -8,6 +8,8 @@ to work.
 
 Building
 --------
+libgtk2.0-dev or equivalent is required for successful building
+
     $ gcc -shared -fPIC `pkg-config gtk+-x11-2.0 --cflags --libs` -o libvi.so vi.c
 
 or

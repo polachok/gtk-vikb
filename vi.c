@@ -6,7 +6,7 @@
 #include <gdk/gdkkeysyms.h>
 
 enum { Insert, Normal };
-enum { Move, Delete, Paste, Copy, Cut };
+enum { Move, Delete, Paste, Copy, Cut, Change };
 enum { No, Yes, More };
 enum { Char, Word, Line, ParaEnd, Para };
 
@@ -127,6 +127,14 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			visual = 0;
 			/* XXX: dd */
 			break;
+		case GDK_c:
+			if (mod == Move) {
+				mod = Change;
+				handled = More;
+				return TRUE;
+			}
+			visual = 0;
+			break;
 		case GDK_b:
 			obj = Word;
 			m = -abs(m);
@@ -217,6 +225,10 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			break;
 		case Delete:
 			delete(widget, obj, m);
+			break;
+		case Change:
+			delete(widget, obj, m);
+			mode = Insert;
 			break;
 		case Cut:
 			cut(widget);

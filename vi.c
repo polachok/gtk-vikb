@@ -139,6 +139,7 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			obj = Word;
 			m = -abs(m);
 			break;
+		case GDK_e:
 		case GDK_w:
 			obj = Word;
 			break;

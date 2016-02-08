@@ -16,11 +16,11 @@ static void
 move(GtkWidget *widget, int noun, int multiplier, int visual) {
 	static const int n2gtk[] =
 	{
-		GTK_MOVEMENT_LOGICAL_POSITIONS,
-		GTK_MOVEMENT_WORDS,
-		GTK_MOVEMENT_DISPLAY_LINES,
-		GTK_MOVEMENT_PARAGRAPH_ENDS,
-		GTK_MOVEMENT_PARAGRAPHS
+		[Char] = GTK_MOVEMENT_LOGICAL_POSITIONS,
+		[Word] = GTK_MOVEMENT_WORDS,
+		[Line] = GTK_MOVEMENT_DISPLAY_LINES,
+		[ParaEnd] = GTK_MOVEMENT_PARAGRAPH_ENDS,
+		[Para] = GTK_MOVEMENT_PARAGRAPHS
 	};
 
 	g_signal_emit_by_name(G_OBJECT(widget), "move-cursor",
@@ -31,11 +31,11 @@ static void
 delete(GtkWidget *widget, int noun, int multiplier) {
 	static const int n2gtk[] =
 	{
-		GTK_DELETE_CHARS,
-		GTK_DELETE_WORD_ENDS,
-		GTK_DELETE_DISPLAY_LINE_ENDS,
-		GTK_DELETE_PARAGRAPH_ENDS,
-		GTK_DELETE_PARAGRAPHS
+		[Char] = GTK_DELETE_CHARS,
+		[Word] = GTK_DELETE_WORD_ENDS,
+		[Line] = GTK_DELETE_DISPLAY_LINE_ENDS,
+		[ParaEnd] = GTK_DELETE_PARAGRAPH_ENDS,
+		[Para] = GTK_DELETE_PARAGRAPHS
 	};
 
 	g_signal_emit_by_name(G_OBJECT(widget), "delete-from-cursor",

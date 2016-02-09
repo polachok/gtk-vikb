@@ -210,7 +210,15 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			move(widget, Char, 1, 0);
 			mod = Paste;
 			break;
+#if defined(ALT_SPACE_INSTEAD_OF_ESC)
 		case GDK_Escape:
+			return FALSE; /* pass ESC along */
+		case GDK_space:
+			if(!event->state & GDK_META_MASK)
+				return TRUE;
+#else
+		case GDK_Escape:
+#endif
 			visual = 0;
 			return TRUE;
 		default:
@@ -276,7 +284,14 @@ snooper(GtkWidget *widget, GdkEventKey *event, gpointer data) {
 		return TRUE;
 	if (GTK_IS_TEXT_VIEW(widget))
 		set_block_cursor((GtkTextView*)widget, 0);
-	if (mode == Insert && event->keyval == GDK_Escape) {
+	if (mode == Insert &&
+#if defined(ALT_SPACE_INSTEAD_OF_ESC)
+		 event->keyval == GDK_space &&
+		 (event->state & GDK_MOD1_MASK) /* normally ALT key */
+#else
+		 event->keyval == GDK_Escape
+#endif
+		 ) {
 		if (event->type == GDK_KEY_PRESS) {
 			mode = Normal;
 			if (GTK_IS_TEXT_VIEW(widget)) {

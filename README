@@ -16,6 +16,12 @@ or
 
     $ make
 
+If you prefer, you can keep ESC behaving normally (closing dialogs, etc) and
+have ALT-SPACE to leave insert mode to normal mode instead. This is
+accomplished by compiling with:
+
+	$ make "ALT_SPACE=1"
+
 To try it out
 -------------
 GTK_MODULES=<path-to-libvi.so> [your-application]

@@ -212,7 +212,7 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			break;
 		case GDK_Escape:
 			visual = 0;
-			break;
+			return TRUE;
 		default:
 			gtk_widget_error_bell(widget);
 			handled = No;

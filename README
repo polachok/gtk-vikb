@@ -30,7 +30,7 @@ For permanent use
 -----------------
 1) install module somewhere
 
-	mkdir -p .gtk-2.0/modules
+	mkdir -p ~/.gtk-2.0/modules
 	cp libvi.so ~/.gtk-2.0/modules/
 
 2) add this to startup script (~/.xinitrc or whatever)

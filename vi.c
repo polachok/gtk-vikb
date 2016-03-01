@@ -135,6 +135,12 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			}
 			visual = 0;
 			break;
+		case GDK_s:
+			if (mod == Move) {
+				mod = Change;
+				obj = Char;
+			}
+			break;
 		case GDK_b:
 			obj = Word;
 			m = -abs(m);

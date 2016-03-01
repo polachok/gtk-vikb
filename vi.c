@@ -174,6 +174,9 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			obj = Line;
 			m = -abs(m);
 			break;
+		case GDK_I:
+			mode = Insert;
+			/* FALLTHROUGH */
 		case GDK_0:
 		case GDK_asciicircum:
 			obj = ParaEnd;

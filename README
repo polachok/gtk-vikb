@@ -16,6 +16,12 @@ or
 
     $ make
 
+If you prefer, you can keep ESC behaving normally (closing dialogs, etc) and
+have ALT-SPACE to leave insert mode to normal mode instead. This is
+accomplished by compiling with:
+
+	$ make "ALT_SPACE=1"
+
 To try it out
 -------------
 GTK_MODULES=<path-to-libvi.so> [your-application]
@@ -24,7 +30,7 @@ For permanent use
 -----------------
 1) install module somewhere
 
-	mkdir -p .gtk-2.0/modules
+	mkdir -p ~/.gtk-2.0/modules
 	cp libvi.so ~/.gtk-2.0/modules/
 
 2) add this to startup script (~/.xinitrc or whatever)

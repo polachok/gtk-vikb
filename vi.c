@@ -6,7 +6,7 @@
 #include <gdk/gdkkeysyms.h>
 
 enum { Insert, Normal };
-enum { Move, Delete, Paste, Copy, Cut };
+enum { Move, Delete, Paste, Copy, Cut, Change };
 enum { No, Yes, More };
 enum { Char, Word, Line, ParaEnd, Para };
 
@@ -16,11 +16,11 @@ static void
 move(GtkWidget *widget, int noun, int multiplier, int visual) {
 	static const int n2gtk[] =
 	{
-		GTK_MOVEMENT_LOGICAL_POSITIONS,
-		GTK_MOVEMENT_WORDS,
-		GTK_MOVEMENT_DISPLAY_LINES,
-		GTK_MOVEMENT_PARAGRAPH_ENDS,
-		GTK_MOVEMENT_PARAGRAPHS
+		[Char] = GTK_MOVEMENT_LOGICAL_POSITIONS,
+		[Word] = GTK_MOVEMENT_WORDS,
+		[Line] = GTK_MOVEMENT_DISPLAY_LINES,
+		[ParaEnd] = GTK_MOVEMENT_PARAGRAPH_ENDS,
+		[Para] = GTK_MOVEMENT_PARAGRAPHS
 	};
 
 	g_signal_emit_by_name(G_OBJECT(widget), "move-cursor",
@@ -31,11 +31,11 @@ static void
 delete(GtkWidget *widget, int noun, int multiplier) {
 	static const int n2gtk[] =
 	{
-		GTK_DELETE_CHARS,
-		GTK_DELETE_WORD_ENDS,
-		GTK_DELETE_DISPLAY_LINE_ENDS,
-		GTK_DELETE_PARAGRAPH_ENDS,
-		GTK_DELETE_PARAGRAPHS
+		[Char] = GTK_DELETE_CHARS,
+		[Word] = GTK_DELETE_WORD_ENDS,
+		[Line] = GTK_DELETE_DISPLAY_LINE_ENDS,
+		[ParaEnd] = GTK_DELETE_PARAGRAPH_ENDS,
+		[Para] = GTK_DELETE_PARAGRAPHS
 	};
 
 	g_signal_emit_by_name(G_OBJECT(widget), "delete-from-cursor",
@@ -127,10 +127,25 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			visual = 0;
 			/* XXX: dd */
 			break;
+		case GDK_c:
+			if (mod == Move) {
+				mod = Change;
+				handled = More;
+				return TRUE;
+			}
+			visual = 0;
+			break;
+		case GDK_s:
+			if (mod == Move) {
+				mod = Change;
+				obj = Char;
+			}
+			break;
 		case GDK_b:
 			obj = Word;
 			m = -abs(m);
 			break;
+		case GDK_e:
 		case GDK_w:
 			obj = Word;
 			break;
@@ -165,6 +180,9 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			obj = Line;
 			m = -abs(m);
 			break;
+		case GDK_I:
+			mode = Insert;
+			/* FALLTHROUGH */
 		case GDK_0:
 		case GDK_asciicircum:
 			obj = ParaEnd;
@@ -201,9 +219,17 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			move(widget, Char, 1, 0);
 			mod = Paste;
 			break;
+#if defined(ALT_SPACE_INSTEAD_OF_ESC)
 		case GDK_Escape:
+			return FALSE; /* pass ESC along */
+		case GDK_space:
+			if(!event->state & GDK_META_MASK)
+				return TRUE;
+#else
+		case GDK_Escape:
+#endif
 			visual = 0;
-			break;
+			return TRUE;
 		default:
 			gtk_widget_error_bell(widget);
 			handled = No;
@@ -217,6 +243,10 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			break;
 		case Delete:
 			delete(widget, obj, m);
+			break;
+		case Change:
+			delete(widget, obj, m);
+			mode = Insert;
 			break;
 		case Cut:
 			cut(widget);
@@ -263,7 +293,14 @@ snooper(GtkWidget *widget, GdkEventKey *event, gpointer data) {
 		return TRUE;
 	if (GTK_IS_TEXT_VIEW(widget))
 		set_block_cursor((GtkTextView*)widget, 0);
-	if (mode == Insert && event->keyval == GDK_Escape) {
+	if (mode == Insert &&
+#if defined(ALT_SPACE_INSTEAD_OF_ESC)
+		 event->keyval == GDK_space &&
+		 (event->state & GDK_MOD1_MASK) /* normally ALT key */
+#else
+		 event->keyval == GDK_Escape
+#endif
+		 ) {
 		if (event->type == GDK_KEY_PRESS) {
 			mode = Normal;
 			if (GTK_IS_TEXT_VIEW(widget)) {

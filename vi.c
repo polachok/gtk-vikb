@@ -142,11 +142,14 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			}
 			break;
 		case GDK_b:
+		case GDK_B:
 			obj = Word;
 			m = -abs(m);
 			break;
 		case GDK_e:
+		case GDK_E:
 		case GDK_w:
+		case GDK_W:
 			obj = Word;
 			break;
 		case GDK_h:
@@ -172,7 +175,7 @@ vi_mode(GtkWidget *widget, GdkEventKey *event) {
 			mod = Move;
 			obj = Char;
 			m = 1;
-			break;	
+			break;
 		case GDK_j:
 			obj = Line;
 			break;

@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
+#if GTK_MAJOR_VERSION >= 3
 #include <gdk/gdkkeysyms-compat.h>
+#else
+#include <gdk/gdkkeysyms.h>
+#endif
 
 enum { Insert, Normal };
 enum { Move, Delete, Paste, Copy, Cut, Change };
@@ -274,9 +278,13 @@ static void
 set_block_cursor(GtkTextView *widget, int set) {
 	if (set) {
 		gtk_text_view_set_overwrite(widget, set);
-		//widget->overwrite_mode = FALSE;
+		#if GTK_MAJOR_VERSION < 3
+		widget->overwrite_mode = FALSE;
+		#endif
 	} else {
-		//widget->overwrite_mode = TRUE;
+		#if GTK_MAJOR_VERSION < 3
+		widget->overwrite_mode = TRUE;
+		#endif
 		gtk_text_view_set_overwrite(widget, set);
 	}
 }

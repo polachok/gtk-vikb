@@ -8,13 +8,14 @@ to work.
 
 Building
 --------
-libgtk2.0-dev or equivalent is required for successful building
-
-    $ gcc -shared -fPIC `pkg-config gtk+-x11-2.0 --cflags --libs` -o libvi.so vi.c
-
-or
+libgtk2.0-dev, libgtk3.0-dev or equivalent is required for successful building.
 
     $ make
+
+Or limit the build to GTK version of your choice:
+
+    $ make libvi-2
+    $ make libvi-3
 
 If you prefer, you can keep ESC behaving normally (closing dialogs, etc) and
 have ALT-SPACE to leave insert mode to normal mode instead. This is
@@ -24,14 +25,17 @@ accomplished by compiling with:
 
 To try it out
 -------------
-GTK_MODULES=<path-to-libvi.so> [your-application]
+GTK2_MODULES=<path-to-libvi-2.so> GTK3_MODULES=<path-to-libvi-3.so> [your-application]
 
 For permanent use
 -----------------
 1) install module somewhere
 
 	mkdir -p ~/.gtk-2.0/modules
-	cp libvi.so ~/.gtk-2.0/modules/
+	cp libvi-2.so ~/.gtk-2.0/modules/libvi.so
+
+	mkdir -p ~/.gtk-3.0/modules
+	cp libvi-3.so ~/.gtk-3.0/modules/libvi.so
 
 2) add this to startup script (~/.xinitrc or whatever)
 

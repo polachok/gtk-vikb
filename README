@@ -35,5 +35,4 @@ For permanent use
 
 2) add this to startup script (~/.xinitrc or whatever)
 
-	export GTK_PATH=$HOME/.gtk-2.0/modules
 	export GTK_MODULES=vi

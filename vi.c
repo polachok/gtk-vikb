@@ -1,7 +1,3 @@
-/*
- * gcc -shared -fPIC `pkg-config gtk+-x11-2.0 --cflags --libs` -o libvi.so vi.c
- * GTK_MODULES=$PWD/libvi.so <app>
- */
 #include <stdlib.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>

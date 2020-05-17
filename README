@@ -31,12 +31,13 @@ For permanent use
 -----------------
 1) install module somewhere
 
-	mkdir -p ~/.gtk-2.0/modules
-	cp libvi-2.so ~/.gtk-2.0/modules/libvi.so
+	mkdir -p ~/.gtk-modules/modules
+	cp libvi-2.so ~/.gtk-modules/modules/libvi.so
 
-	mkdir -p ~/.gtk-3.0/modules
-	cp libvi-3.so ~/.gtk-3.0/modules/libvi.so
+	mkdir -p ~/.gtk-modules/3.0.0/modules
+	cp libvi-3.so ~/.gtk-modules/3.0.0/modules/libvi.so
 
 2) add this to startup script (~/.xinitrc or whatever)
 
+	export GTK_PATH=$HOME/.gtk-modules
 	export GTK_MODULES=vi

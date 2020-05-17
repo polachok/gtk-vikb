@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -shared -fPIC `pkg-config gtk+-x11-2.0 --cflags --libs`
+CFLAGS := -shared -fPIC `pkg-config gtk+-x11-3.0 --cflags --libs`
 ifdef ALT_SPACE
 CFLAGS += -DALT_SPACE_INSTEAD_OF_ESC
 endif

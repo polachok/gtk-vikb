@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
+#include <gdk/gdkkeysyms-compat.h>
 
 enum { Insert, Normal };
 enum { Move, Delete, Paste, Copy, Cut, Change };
@@ -274,9 +274,9 @@ static void
 set_block_cursor(GtkTextView *widget, int set) {
 	if (set) {
 		gtk_text_view_set_overwrite(widget, set);
-		widget->overwrite_mode = FALSE;
+		//widget->overwrite_mode = FALSE;
 	} else {
-		widget->overwrite_mode = TRUE;
+		//widget->overwrite_mode = TRUE;
 		gtk_text_view_set_overwrite(widget, set);
 	}
 }
